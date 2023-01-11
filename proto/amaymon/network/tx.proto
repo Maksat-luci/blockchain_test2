@@ -1,0 +1,23 @@
+syntax = "proto3";
+package amaymon.network;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "amaymon/x/network/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc AddTokens(MsgAddTokens) returns (MsgAddTokensResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgAddTokens {
+  string creator = 1;
+  int32 amount = 2;
+  string toAddress = 3;
+}
+
+message MsgAddTokensResponse {
+}
+
+// this line is used by starport scaffolding # proto/tx/message

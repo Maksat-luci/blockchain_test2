@@ -104,6 +104,12 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	naturemodule "amaymon/x/nature"
+	naturemodulekeeper "amaymon/x/nature/keeper"
+	naturemoduletypes "amaymon/x/nature/types"
+	networkmodule "amaymon/x/network"
+	networkmodulekeeper "amaymon/x/network/keeper"
+	networkmoduletypes "amaymon/x/network/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "amaymon/app/params"
@@ -162,6 +168,8 @@ var (
 		transfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		vesting.AppModuleBasic{},
+		networkmodule.AppModuleBasic{},
+		naturemodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -175,6 +183,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		naturemoduletypes.ModuleName:   {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -235,6 +244,9 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
+	NetworkKeeper networkmodulekeeper.Keeper
+
+	NatureKeeper naturemodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -279,6 +291,8 @@ func New(
 		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, icahosttypes.StoreKey, capabilitytypes.StoreKey, group.StoreKey,
 		icacontrollertypes.StoreKey,
+		networkmoduletypes.StoreKey,
+		naturemoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -496,6 +510,24 @@ func New(
 		govConfig,
 	)
 
+	app.NetworkKeeper = *networkmodulekeeper.NewKeeper(
+		appCodec,
+		keys[networkmoduletypes.StoreKey],
+		keys[networkmoduletypes.MemStoreKey],
+		app.GetSubspace(networkmoduletypes.ModuleName),
+	)
+	networkModule := networkmodule.NewAppModule(appCodec, app.NetworkKeeper, app.AccountKeeper, app.BankKeeper)
+
+	app.NatureKeeper = *naturemodulekeeper.NewKeeper(
+		appCodec,
+		keys[naturemoduletypes.StoreKey],
+		keys[naturemoduletypes.MemStoreKey],
+		app.GetSubspace(naturemoduletypes.ModuleName),
+
+		app.BankKeeper,
+	)
+	natureModule := naturemodule.NewAppModule(appCodec, app.NatureKeeper, app.AccountKeeper, app.BankKeeper)
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	// Sealing prevents other modules from creating scoped sub-keepers
@@ -541,6 +573,8 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		icaModule,
+		networkModule,
+		natureModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -570,6 +604,8 @@ func New(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		networkmoduletypes.ModuleName,
+		naturemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -594,6 +630,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		networkmoduletypes.ModuleName,
+		naturemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -623,6 +661,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		networkmoduletypes.ModuleName,
+		naturemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -652,6 +692,8 @@ func New(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
+		networkModule,
+		natureModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -850,6 +892,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(networkmoduletypes.ModuleName)
+	paramsKeeper.Subspace(naturemoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

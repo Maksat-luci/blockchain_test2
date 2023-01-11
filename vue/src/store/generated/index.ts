@@ -1,8 +1,12 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
+import AmaymonNature from './amaymon.nature'
+import AmaymonNetwork from './amaymon.network'
 
 
 export default { 
+  AmaymonNature: load(AmaymonNature, 'amaymon.nature'),
+  AmaymonNetwork: load(AmaymonNetwork, 'amaymon.network'),
   
 }
 

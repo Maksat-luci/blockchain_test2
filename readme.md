@@ -12,7 +12,9 @@ ignite chain serve
 ### Configure
 
 Your blockchain in development can be configured with `config.yml`. To learn more, see the [Ignite CLI docs](https://docs.ignite.com).
-
+cosmos1ls5ewrlyxxusjd0r4a5qyp6reamz95dn52vz4y
+cosmos1t4aw8l0ty965scfax2waea867r9tlx7q9qu56h
+A5SldmReO52w13cau9EqEm8D17TTs1gbp8k753bh94s+
 ### Web Frontend
 
 Ignite CLI has scaffolded a Vue.js-based web app in the `vue` directory. Run the following commands to install dependencies and start the app:

@@ -80,6 +80,10 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 			)
 		},
 	}
+	
+	rootCmd.AddCommand(
+		server.RosettaCommand(encodingConfig.InterfaceRegistry , encodingConfig.Marshaler),
+	)
 
 	initRootCmd(rootCmd, encodingConfig)
 	overwriteFlagDefaults(rootCmd, map[string]string{

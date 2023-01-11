@@ -1,0 +1,14 @@
+syntax = "proto3";
+package amaymon.nature;
+
+import "gogoproto/gogo.proto";
+import "amaymon/nature/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "amaymon/x/nature/types";
+
+// GenesisState defines the nature module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  // this line is used by starport scaffolding # genesis/proto/state
+}
